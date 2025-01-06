@@ -1,0 +1,11 @@
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\bin\Debug\net8.0\Common_class_Lib.deps.json
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\bin\Debug\net8.0\Common_class_Lib.dll
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\bin\Debug\net8.0\Common_class_Lib.pdb
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\Common_class_Lib.GeneratedMSBuildEditorConfig.editorconfig
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\Common_class_Lib.AssemblyInfoInputs.cache
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\Common_class_Lib.AssemblyInfo.cs
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\Common_class_Lib.csproj.CoreCompileInputs.cache
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\Common_class_Lib.dll
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\refint\Common_class_Lib.dll
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\Common_class_Lib.pdb
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\ref\Common_class_Lib.dll
