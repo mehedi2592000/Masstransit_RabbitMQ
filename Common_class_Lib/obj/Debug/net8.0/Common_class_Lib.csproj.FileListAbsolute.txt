@@ -9,3 +9,4 @@ D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\De
 D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\refint\Common_class_Lib.dll
 D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\Common_class_Lib.pdb
 D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\ref\Common_class_Lib.dll
+D:\OneDrive - intellier.com\project\MassTransit_RabbitMQ\Common_class_Lib\obj\Debug\net8.0\Common_class_Lib.sourcelink.json

@@ -1,5 +1,6 @@
 ﻿using Common_class_Lib;
 using MassTransit;
+using System.Diagnostics;
 
 namespace Order_API.Product_Consumer
 {
@@ -14,6 +15,8 @@ namespace Order_API.Product_Consumer
 
         public async Task Consume(ConsumeContext<ProductCreatedEvent> context)
         {
+            
+
             var product = context.Message;
 
             try
@@ -21,15 +24,19 @@ namespace Order_API.Product_Consumer
                 Console.WriteLine($"Received Product: {product.ProductId}, Name: {product.ProductName}, Price: {product.Price}");
                 //_logger.LogInformation($"Product received: {product.ProductId}");
 
+                
+
                 // Simulate processing
                 await Task.Delay(1000);
 
                 // If processing is successful
                 Console.WriteLine("Product processed successfully");
+                
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error processing message: {ex.Message}");
+                             
                 throw; // Let MassTransit handle retries and dead-lettering
             }
         }

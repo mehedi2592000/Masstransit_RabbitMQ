@@ -1,4 +1,7 @@
 using MassTransit;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+using OpenTelemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +42,43 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+});
+
+builder.Services.AddOpenTelemetry()
+    //.ConfigureResource(resource => resource.AddService("CoffeeShopHasan"))
+    .WithMetrics(metrics =>
+    {
+        metrics
+        .AddAspNetCoreInstrumentation()               //use for creates spans incoming Http Request 
+        .AddHttpClientInstrumentation()             //capture spans fro outgoing http request 
+        .AddConsoleExporter();
+
+        //.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MyService"));
+        //metrics.AddRuntimeInstrumentation()
+        //   .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", "System.Net.Http");
+
+    })
+    .WithTracing(tracing =>
+    {
+        tracing
+           .AddAspNetCoreInstrumentation()
+           .AddHttpClientInstrumentation()
+           .AddSource("Masstransit-queue")
+           .AddSource("ProductService", "OrderService")
+           .AddConsoleExporter();
+
+    });
+
+var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+if (useOtlpExporter)
+{
+    builder.Services.AddOpenTelemetry().UseOtlpExporter();
+}
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,5 +93,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
+
+
 
 app.Run();

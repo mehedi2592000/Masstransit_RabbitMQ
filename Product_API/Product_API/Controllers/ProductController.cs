@@ -3,6 +3,7 @@ using MassTransit;
 using MassTransit.Clients;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Product_API.Controllers
 {
@@ -39,10 +40,12 @@ namespace Product_API.Controllers
 
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly IRequestClient<GetOrderListRequest> _requestClient;
-        public ProductController(IPublishEndpoint publishEndpoint, IRequestClient<GetOrderListRequest> requestClient)
+        public ILogger<ProductController> _logger;
+        public ProductController(IPublishEndpoint publishEndpoint, IRequestClient<GetOrderListRequest> requestClient, ILogger<ProductController> logger)
         {
             _publishEndpoint = publishEndpoint;
             _requestClient=requestClient;
+            _logger=logger;
         }
 
         [HttpGet("get-order-list")]
@@ -81,6 +84,36 @@ namespace Product_API.Controllers
         [HttpPost("list-create-batch")]
         public async Task<IActionResult> CreateProductsBatch()
         {
+            //_logger.LogInformation("Start the list-create-batch");
+            //// Simulating a batch of products
+            //var products = new List<ProductCreatedEvent>
+            //{
+            //    new ProductCreatedEvent { ProductId = Guid.NewGuid(), ProductName = "Product A", Price = 100.00m, CreatedAt = DateTime.UtcNow },
+            //    new ProductCreatedEvent { ProductId = Guid.NewGuid(), ProductName = "Product B", Price = 200.50m, CreatedAt = DateTime.UtcNow },
+            //    new ProductCreatedEvent { ProductId = Guid.NewGuid(), ProductName = "Product C", Price = 300.75m, CreatedAt = DateTime.UtcNow }
+            //};
+
+            //// Create a batch event
+            //var batchEvent = new ProductsBatchEvent { product = products };
+
+            //Console.WriteLine($"Publishing batch of {products.Count} products.");
+            //_logger.LogInformation($"Publishing batch of {products.Count} products.");
+            //await _publishEndpoint.Publish(batchEvent); // Publish the batch event
+
+            //return Ok($"Batch of {products.Count} products created and published.");
+
+
+
+            //Step- 22222222222
+
+            _logger.LogInformation("Start the list-create-batch");
+
+            var activitySource = new ActivitySource("ProductService");
+
+            using var activity = activitySource.StartActivity("CreateProductsBatch", ActivityKind.Producer);
+            activity?.SetTag("operation.name", "publish.products.batch");
+
+
             // Simulating a batch of products
             var products = new List<ProductCreatedEvent>
             {
@@ -93,7 +126,23 @@ namespace Product_API.Controllers
             var batchEvent = new ProductsBatchEvent { product = products };
 
             Console.WriteLine($"Publishing batch of {products.Count} products.");
-            await _publishEndpoint.Publish(batchEvent); // Publish the batch event
+            _logger.LogInformation($"Publishing batch of {products.Count} products.");
+
+            activity?.AddEvent(new ActivityEvent("Batch created"));
+            await _publishEndpoint.Publish(batchEvent, context =>
+            {
+                if (activity != null)
+                {
+                    context.Headers.Set("traceparent", activity.Id); // Add traceparent to headers
+                    if (activity.TraceStateString != null)
+                        context.Headers.Set("tracestate", activity.TraceStateString);
+                }
+            });
+
+
+
+
+            //await _publishEndpoint.Publish(batchEvent); // Publish the batch event
 
             return Ok($"Batch of {products.Count} products created and published.");
         }

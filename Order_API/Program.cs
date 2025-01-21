@@ -1,4 +1,7 @@
 using MassTransit;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+using OpenTelemetry;
 using Order_API;
 using Order_API.Product_Consumer;
 
@@ -32,9 +35,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<ProductCreatedConsumer>();
-    x.AddConsumer<ListProductCreateConsumer>();
-    x.AddConsumer<GetOrderConsumer>();
+    //x.AddConsumer<ProductCreatedConsumer>();
+    //x.AddConsumer<ListProductCreateConsumer>();
+    //x.AddConsumer<GetOrderConsumer>();
+
+    x.AddConsumers(typeof(Program).Assembly);
     
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -50,6 +55,43 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(context);
     });
 });
+
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+});
+
+builder.Services.AddOpenTelemetry()
+    //.ConfigureResource(resource => resource.AddService("CoffeeShopHasan"))
+    .WithMetrics(metrics =>
+    {
+        metrics
+        .AddAspNetCoreInstrumentation()               //use for creates spans incoming Http Request 
+        .AddHttpClientInstrumentation()
+        .AddConsoleExporter();              //capture spans fro outgoing http request 
+
+        //.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MyService"));
+        //metrics.AddRuntimeInstrumentation()
+        //   .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", "System.Net.Http");
+
+    })
+    .WithTracing(tracing =>
+    {
+        tracing
+           .AddAspNetCoreInstrumentation()
+           .AddHttpClientInstrumentation()
+           .AddSource("Masstransit-queue")
+           .AddSource("ProductService", "OrderService")
+           .AddConsoleExporter();
+
+    });
+
+var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+if (useOtlpExporter)
+{
+    builder.Services.AddOpenTelemetry().UseOtlpExporter();
+}
 
 var app = builder.Build();
 
