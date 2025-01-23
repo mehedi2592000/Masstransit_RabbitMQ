@@ -4,6 +4,7 @@ using OpenTelemetry.Trace;
 using OpenTelemetry;
 using Order_API;
 using Order_API.Product_Consumer;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,12 @@ builder.Services.AddSwaggerGen();
 //        });
 //    });
 //});
+
+builder.Services.AddDbContext<OrderDbContext>(context =>
+{
+    context.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+});
 
 builder.Services.AddMassTransit(x =>
 {
@@ -83,6 +90,11 @@ builder.Services.AddOpenTelemetry()
            .AddHttpClientInstrumentation()
            .AddSource("Masstransit-queue")
            .AddSource("ProductService", "OrderService")
+           //.AddSqlClientInstrumentation(options =>
+           // {
+           //     options.SetDbStatementForText = true; // Capture the actual SQL queries
+           //     options.EnableConnectionLevelAttributes = true; // Capture connection-level information
+           // })
            .AddConsoleExporter();
 
     });

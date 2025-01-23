@@ -9,10 +9,13 @@ namespace Order_API.Product_Consumer
     {
 
         public ILogger<ListProductCreateConsumer> _logger;
+        public OrderDbContext _context;
 
-        public ListProductCreateConsumer( ILogger<ListProductCreateConsumer> loggerFactory) {
+        public ListProductCreateConsumer( ILogger<ListProductCreateConsumer> loggerFactory, OrderDbContext context)
+        {
 
             _logger=loggerFactory;
+            _context=context;
         }
 
 
@@ -40,18 +43,23 @@ namespace Order_API.Product_Consumer
 
                 Console.WriteLine($"Received batch of {products.Count} products.");
                 _logger.LogInformation($"Received batch of {products.Count} products.");
+                var polist= _context.products.ToList(); 
 
-
-                foreach (var product in products)
+                foreach (var product in polist)
                 {
-                    Console.WriteLine($"Processing Product: {product.ProductId}, Name: {product.ProductName}, Price: {product.Price}");
-                    _logger.LogInformation($"Processing Product: {product.ProductId}, Name: {product.ProductName}, Price: {product.Price}");
-                    activity?.SetTag("product.id", product.ProductId);
-                    activity?.SetTag("product.name", product.ProductName);
+                    //Console.WriteLine($"Processing Product: {product.ProductId}, Name: {product.ProductName}, Price: {product.Price}");
+                    //_logger.LogInformation($"Processing Product: {product.ProductId}, Name: {product.ProductName}, Price: {product.Price}");
+
+                    Console.WriteLine($"Processing Product: {product.Id}, Name: {product.Name}, Price: {product.Description}");
+                    _logger.LogInformation($"Processing Product: {product.Id}, Name: {product.Name}, Price: {product.Description}");
+
+                    activity?.SetTag("product.id", product.Id);
+                    activity?.SetTag("product.name", product.Name);
 
                     // Simulate processing
                     await Task.Delay(500);
                 }
+
 
                 //int[] arr = new int[2];
 
@@ -67,7 +75,16 @@ namespace Order_API.Product_Consumer
             {
                 _logger.LogError("Batch processed Eror");
                 activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-                throw ex;
+
+                // Add the exception details to the activity as an event
+                activity?.AddEvent(new ActivityEvent("Exception occurred", default, new ActivityTagsCollection
+                {
+                    { "error.type", ex.GetType().Name },
+                    { "error.message", ex.Message },
+                    { "error.stacktrace", ex.StackTrace }
+                }));
+
+                throw ;
             }
         }
     }

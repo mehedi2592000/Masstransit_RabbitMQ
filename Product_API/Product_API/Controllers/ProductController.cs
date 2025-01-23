@@ -3,6 +3,7 @@ using MassTransit;
 using MassTransit.Clients;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Product_API.Service;
 using System.Diagnostics;
 
 namespace Product_API.Controllers
@@ -41,11 +42,14 @@ namespace Product_API.Controllers
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly IRequestClient<GetOrderListRequest> _requestClient;
         public ILogger<ProductController> _logger;
-        public ProductController(IPublishEndpoint publishEndpoint, IRequestClient<GetOrderListRequest> requestClient, ILogger<ProductController> logger)
+        public ProductService _productService;
+        public ProductController(IPublishEndpoint publishEndpoint, IRequestClient<GetOrderListRequest> requestClient, ILogger<ProductController> logger, ProductService productservice)
         {
             _publishEndpoint = publishEndpoint;
             _requestClient=requestClient;
             _logger=logger;
+            _productService=productservice;
+           
         }
 
         [HttpGet("get-order-list")]
@@ -145,6 +149,17 @@ namespace Product_API.Controllers
             //await _publishEndpoint.Publish(batchEvent); // Publish the batch event
 
             return Ok($"Batch of {products.Count} products created and published.");
+        }
+
+        [HttpPost("get-list-database")]
+        public async Task<IActionResult> GetListFromDatabase()
+        {
+            _logger.LogInformation("Start the list-from db");
+            var data = _productService.getListData();
+
+            _logger.LogInformation("End the list-from db");
+
+            return Ok(data);    
         }
     }
 }

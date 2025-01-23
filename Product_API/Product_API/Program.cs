@@ -2,6 +2,9 @@ using MassTransit;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using OpenTelemetry;
+using Product_API;
+using Microsoft.EntityFrameworkCore;
+using Product_API.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,12 @@ builder.Services.AddSwaggerGen();
 //        });
 //    });
 //});
+
+builder.Services.AddDbContext<ProductDbContext>(context =>
+{
+    context.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+});
 
 builder.Services.AddMassTransit(x =>
 {
@@ -79,6 +88,8 @@ if (useOtlpExporter)
     builder.Services.AddOpenTelemetry().UseOtlpExporter();
 }
 
+
+builder.Services.AddScoped<ProductService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
